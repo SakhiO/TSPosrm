@@ -9,7 +9,6 @@ package tspurca.Mainpkg;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.jdom2.JDOMException;
-import tspurca.Tools.TimerJob;
 
 /**
  *

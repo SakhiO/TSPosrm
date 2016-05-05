@@ -38,7 +38,7 @@ public class Routines {
  * @throws SQLException
  * @throws JDOMException
  * @throws Exception 
- */    
+ */     
     public void initVille(String fileosm, String nameThr) throws IOException, SQLException, JDOMException, Exception{
         
         
@@ -87,19 +87,18 @@ public class Routines {
         if ((tailleM % tailleRequete)!= 0) {
             Nbtours++;
         }
-        
-        
-       
-     
-        
+ 
         /* Produce diagonal jobs */ 
-        for (int i = 0; i < Nbtours; i++) 
+        for (int i = 0; i < Nbtours; i++){
             this.ac.addtoQueue(cmd.getCommandeJobD(i,"O"));
-  
+            
+        }
         /* Produce Upper jobs */
         for (int i = 0; i < Nbtours-1; i++) {
-            for (int j = i+1; j < Nbtours; j++)
-                this.ac.addtoQueue(cmd.getCommandeJobU(i,j,"O"));               
+            for (int j = i+1; j < Nbtours; j++){
+                this.ac.addtoQueue(cmd.getCommandeJobU(i,j,"O"));      
+                
+            }         
         }
         
        
@@ -147,17 +146,16 @@ public class Routines {
         ParsserJson Pars = new ParsserJson(this.ac.config);
         
         /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
-        
-        
         String queryOSRM = this.ac.BD.RequetteOSRMBD(start, tailleRequete, -1);
             
         if ((!queryOSRM.equals(""))) {
+            
            /* send query to osrm */
            Pars.EnvoieRequette(queryOSRM);
            /* pars responce to Exitfile */
            Pars.TableauDistanceOSRMRepD(start, ExitFile);
            /* insert to Table distance*/
-           this.ac.BD.RequetteInsertDistt(filedata);
+           //this.ac.BD.RequetteInsertDistt(filedata);
         }
         else
             throw new Exception("Erreur Query result from DB is Empty");
@@ -208,23 +206,28 @@ public class Routines {
         
         /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
         /* get Sub table cities*/
-        String querySrc = this.ac.BD.RequetteOSRMBD(startS, tailleReqS2, 0);
-        String queryDest = this.ac.BD.RequetteOSRMBD(startD, tailleReqS2, tailleReqS2);
-        
-        
-        String queryOSRM = Pars.assemble2Query(querySrc, queryDest);
-       
-        if (!queryOSRM.equals("")) {
-
-           /* send query to osrm */
-           Pars.EnvoieRequette(queryOSRM);
-           /* pars responce to Exitfile */
-           Pars.TableauDistanceOSRMRepU(startS, startD, ExitFile);
-           /* insert to Table distance*/
-           this.ac.BD.RequetteInsertDistt(filedata);
+        for (int i = 0; i < 2; i++) {
+            
+            String querySrc = this.ac.BD.RequetteOSRMBD(startS, tailleReqS2, 0);
+            
+            for (int j = 0; j < 2; j++) {
+                String queryDest = this.ac.BD.RequetteOSRMBD(startD, tailleReqS2, tailleReqS2);
+                
+                if (!queryDest.equals("")) {
+                    String queryOSRM = Pars.assemble2Query(querySrc, queryDest);
+                    /* send query to osrm */
+                    Pars.EnvoieRequette(queryOSRM);
+                    /* pars responce to Exitfile */
+                    Pars.TableauDistanceOSRMRepU(startS, startD, ExitFile);
+                    /* insert to Table distance*/
+                    //this.ac.BD.RequetteInsertDistt(filedata);
+                }
+                        
+                startD += tailleReqS2; 
+            }   
+            startS +=tailleReqS2;
         }
-        else
-            throw new Exception("Erreur Query result from DB is Empty");
+        
         
         //this.tjBD.addTime(this.ac.BD.tj);
         this.tjPars.addTime(Pars.tj);

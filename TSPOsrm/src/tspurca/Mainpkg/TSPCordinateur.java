@@ -8,7 +8,6 @@ package tspurca.Mainpkg;
 
 import static java.lang.Thread.sleep;
 import java.net.InetSocketAddress;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tspurca.Osmpkg.BaseDeDonnee;
@@ -32,7 +31,7 @@ public class TSPCordinateur {
         TimerJob total = new TimerJob();
         
         /* init base donnee user et mot de passe */
-        String db = "192.168.1.11:3306/maindb";
+        String db = "localhost:3306/maindb";
         String user = "osm";
         String pwd = "Info0606";
         String fileosm = "./data/NodesChampagnef.osm";
@@ -40,7 +39,7 @@ public class TSPCordinateur {
         int portS = 59000;
         Commande cmd = new Commande();
         BaseDeDonnee BD = new BaseDeDonnee(db,user,pwd);
-        InetSocketAddress socketS = new InetSocketAddress("192.168.1.42",59000);
+        InetSocketAddress socketS = new InetSocketAddress("localhost",portS);
         
         try {
             ac = new Access(BD.dburl, idC, 1024, socketS);
@@ -52,17 +51,19 @@ public class TSPCordinateur {
             coordinateur.start();
 
             Job jb = new Job(cmd.getCommandeInitdistance(), "coordinateur", ac);
+            jb.execute();
             
-            
-
-            while(!ac.isQueueEmpty()){  
+             while(!ac.isQueueEmpty() || coordinateur.getNbrJobs() > 0){  
                 sleep(5000);
-            }
-            coordinateur.dostop();
+            }        
+             
             total.stop();
-            System.out.println(coordinateur.TimeDB.toString()+"\n"+coordinateur.TimePars.toString());
-            System.out.println(total.toString());
             
+            coordinateur.dostop();
+            
+            //System.out.println(coordinateur.TimeDB.toString()+"\n"+coordinateur.TimePars.toString());
+            System.out.println(total.toString());
+
         } catch (Exception ex) {
             Logger.getLogger(TSPCordinateur.class.getName()).log(Level.SEVERE, null, ex);
         }    

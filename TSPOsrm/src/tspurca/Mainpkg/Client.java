@@ -6,17 +6,11 @@
 
 package tspurca.Mainpkg;
 
-import java.io.IOException;
 import static java.lang.Thread.sleep;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import tspurca.Tools.TimerJob;
 
 /**
  *
@@ -26,7 +20,7 @@ public class Client extends Thread {
     
     
     private int portC;
-    private DatagramSocket socketC;
+    private final DatagramSocket socketC;
     
     private final SocketAddress socketS;
     
@@ -57,25 +51,29 @@ public class Client extends Thread {
             
             String response = cmd.getRequestConnect();
             this.recvBuf = response.getBytes();
-            DatagramPacket packet = new DatagramPacket(this.recvBuf, this.recvBuf.length, socketS);
-            socketC.send(packet);
+            DatagramPacket packet = new DatagramPacket(this.recvBuf, this.recvBuf.length, this.socketS);
+            this.socketC.send(packet);
             /* recv response */
+            this.recvBuf = new byte[1024*4];
             packet = new DatagramPacket(this.recvBuf, this.recvBuf.length);
-            socketC.receive(packet);
-            Response res = new Response(socketS, packet);  
-            
+            this.socketC.receive(packet);
+            Response res = new Response(this.socketS, packet);  
+           
             if(res.getType().equals("OK")){
-                
-                this.pool = new ThreadPool(res.getResponse(),1024, socketS);
+                  
+                this.pool = new ThreadPool(res.getResponse(),1024, this.socketS);
                 
                 while((!isFin()) || (this.nbrJobs > 0)){
+                    while (!this.pool.isQueueEmpty()) {}
+                    
                     try {
                         /* Request jobs*/
                         packet = res.getPackerReq(cmd.getRequestJob());
-                        socketC.send(packet);
+                        this.socketC.send(packet);
                         /* Receive Response for job*/
+                        this.recvBuf = new byte[1024*4];
                         packet = new DatagramPacket(this.recvBuf, this.recvBuf.length);
-                        socketC.receive(packet);
+                        this.socketC.receive(packet);
                         res = new Response(socketS, packet);
 
                         switch(res.getType()){
@@ -83,7 +81,7 @@ public class Client extends Thread {
                             case "OK":
                                 /* add job to do pool */
                                 response = res.getResponse();
-                                pool.addjob(response);
+                                this.pool.addjob(response);
                                 this.nbrJobs++;
                                 break; 
 
@@ -92,7 +90,7 @@ public class Client extends Thread {
                                 String[] tmp = response.split(",");
                                 
                                 if(tmp[0].equals("sleep")){
-                                    sleep(Long.valueOf(tmp[1]));
+                                    wait(Long.valueOf(tmp[1]));
                                 }
                                 else{
                                     this.dostop();
@@ -105,10 +103,10 @@ public class Client extends Thread {
                         
                         /* send request end to handlers*/
                         if(isFin()){
-                            while(!pool.isQueueEmpty()){   
-                                    response = cmd.getRequestcmdKO(pool.takejob());
+                            while(!this.pool.isQueueEmpty()){   
+                                    response = cmd.getRequestcmdKO(this.pool.takejob());
                                     packet = res.getPackerReq(response);
-                                    socketC.send(packet);
+                                    this.socketC.send(packet);
                             }
                         }    
 
@@ -129,7 +127,7 @@ public class Client extends Thread {
     
     
     public synchronized void dostop(){
-        pool.stop();
+        this.pool.stop();
         this.fin = true;
     }
     
@@ -152,7 +150,8 @@ public class Client extends Thread {
      */
         public Response(SocketAddress socketS,DatagramPacket rcvp){
             this.socketS = socketS;
-            String tmp[] = new String(rcvp.getData()).split("@");
+            String quee = new String(rcvp.getData()).replaceAll("\0", "");
+            String tmp[] = quee.split("@");
             this.type = tmp[0];
             this.response = tmp[1];
             this.sendBuf = new byte[1024*4];

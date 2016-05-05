@@ -7,7 +7,6 @@
 package tspurca.Mainpkg;
 
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +21,7 @@ public class TSPClient {
      */
     public static void main(String[] args) {
         
-        InetSocketAddress socketS = new InetSocketAddress("192.168.1.42",59000);
+        InetSocketAddress socketS = new InetSocketAddress("localhost",59000);
         try {
         
             Client handlerW = new Client(socketS);

@@ -6,11 +6,8 @@
 
 package tspurca.Mainpkg;
 
-import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.util.Vector;
-import java.util.concurrent.ArrayBlockingQueue;
-import tspurca.Osmpkg.BaseDeDonnee;
 import tspurca.Tools.TimerJob;
 
 /**

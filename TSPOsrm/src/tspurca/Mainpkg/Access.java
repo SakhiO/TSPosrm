@@ -12,7 +12,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import tspurca.Osmpkg.BaseDeDonnee;
 import tspurca.Tools.Config;
-import tspurca.Tools.TimerJob;
 
 /**
  *

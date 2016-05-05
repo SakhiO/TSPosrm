@@ -60,11 +60,7 @@ public class Ville_t {
             return false;
         }
         final Ville_t v = (Ville_t) obj;
-        /* (this.NomVille.equals(v.NomVille))  */
-        if ((this.lat.equals(v.lat)) && (this.lon.equals(v.lon))) {
-            return true;
-        }
-        else
-            return false;
+         /* (this.NomVille.equals(v.NomVille))  */
+         return (this.lat.equals(v.lat)) && (this.lon.equals(v.lon));
     } 
 }

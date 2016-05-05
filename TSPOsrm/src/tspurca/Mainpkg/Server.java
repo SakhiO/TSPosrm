@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 import tspurca.Tools.TimerJob;
 
 /**
@@ -35,12 +36,12 @@ public class Server extends Thread {
     public Server(Access ac, int idC, int maxWorkers) throws Exception {
 
         try {
-            
+            this.ac = ac;
             this.socketS = new DatagramSocket(this.ac.socketS);
             this.dburl = this.ac.BD.dburl;
             this.idC = idC;
             this.maxWorkers = maxWorkers; 
-            this.ac = ac;
+            
             this.nbrJobs = 0;
             this.recvBuf = new byte[1024*4]; /*max of datagramme packet*/
             this.TimeDB = new TimerJob();
@@ -58,9 +59,11 @@ public class Server extends Thread {
         String responce;
         while((!isFin()) || (this.nbrJobs > 0)){
             try {
+                this.recvBuf = new byte[1024*4];
                 DatagramPacket packet = new DatagramPacket(this.recvBuf, this.recvBuf.length);
                 socketS.receive(packet);
                 Request req = new Request(packet);
+                //System.out.println(" esponse :" + new String(packet.getData()).replaceAll("\0", ""));
                 responce="";
                 /* send request end to handlers*/
                 if(isFin())
@@ -94,7 +97,8 @@ public class Server extends Thread {
                         /* handle log add time*/
                         String[] tmp = req.getRequest().split("&");
                         this.TimeDB.addTime(new TimerJob(tmp[0]));
-                        this.TimePars.addTime(new TimerJob(tmp[1]));        
+                        this.TimePars.addTime(new TimerJob(tmp[1]));
+                        System.out.println("log :"+Arrays.toString(tmp));
                         /* a job done - 1*/
                         this.nbrJobs--;
                         break;
@@ -141,8 +145,11 @@ public class Server extends Thread {
         /* get commande from queue*/
         return (String) this.ac.getfromQueue();
     }
+
+    public int getNbrJobs() {
+        return nbrJobs;
+    }
     
-   
    /**
     * Classe Request to 
     */
@@ -158,9 +165,14 @@ public class Server extends Thread {
      */
         public Request(DatagramPacket rcvp){
             this.socketC = rcvp.getSocketAddress();
-            String tmp[] = new String(rcvp.getData()).split("@");
+            String quee = new String(rcvp.getData()).replaceAll("\0", "");
+            String tmp[] = quee.split("@");
             this.type = tmp[0];
-            this.request = tmp[1];
+            if (tmp.length>1) {
+                this.request = tmp[1];   
+            }
+            else
+                this.request ="";
             this.sendBuf = new byte[1024*4];
         }
         
