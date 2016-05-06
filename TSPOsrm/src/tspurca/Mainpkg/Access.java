@@ -27,11 +27,11 @@ public class Access {
 
     public Access(String dburl, int idC, int maxSzqueue, SocketAddress socketS) throws SQLException, Exception {
         this.BD = new BaseDeDonnee(dburl);
-        
+    
         BD.connectBD();
         config = new Config(BD.GetConfig(idC));
         BD.closeBD();
-        
+
         this.queue = new ArrayBlockingQueue(maxSzqueue);
         this.socketS = socketS;
     }

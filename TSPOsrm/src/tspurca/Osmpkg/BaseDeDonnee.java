@@ -85,7 +85,7 @@ public class BaseDeDonnee {
 
 
 /**
- * 
+ *  Close connection to DB
 * @throws java.lang.Exception
  */
     public void closeBD() throws Exception{
@@ -226,7 +226,7 @@ public class BaseDeDonnee {
  */
     public ResultSet RequetteEnvoiBD(String req) throws SQLException{
         
-        ResultSet resultats = null;
+        ResultSet resultats;
         String requete = req;
         TimerJob tmp = new TimerJob();
         
@@ -283,26 +283,20 @@ public class BaseDeDonnee {
  */
     public Config GetConfig(int idC) throws SQLException, Exception{      
 
-        Config config;
+        Config config ;
 
         String requete = "SELECT *"
                 + " FROM `config`,(SELECT (COUNT(*)) AS NbVille FROM `Ville`) AS countV"
                 + " WHERE `config`.idC = "+idC+" ;";
 
-           ResultSet rs = RequetteEnvoiBD(requete);
-
-           if(rs.next()){
-               config = new Config(rs.getString("urlOsrm"),rs.getInt("tReq"),rs.getInt("NbVille"));        
-           }
-           else {
-               rs.close();
-               throw new Exception("Erreur get config "+requete);   
-           }
-
-
-           rs.close();
-
-       return config; 
+        try (ResultSet rs = RequetteEnvoiBD(requete)) {
+            if(rs.next()){
+                config = new Config(rs.getString("urlOsrm"),rs.getInt("tReq"),rs.getInt("NbVille"));
+                return config;
+            }            
+        }
+        
+        throw new Exception("Erreur get config "+requete); 
     }
 
 
@@ -332,30 +326,33 @@ public class BaseDeDonnee {
  * @return Longitude and latitude list of cities
  * @throws SQLException 
  */
-    public String RequetteOSRMBD(int debut, int NbVille, int paramid) throws SQLException{
+    public String RequetteOSRMBD(int debut, int NbVille, int paramid) throws SQLException, Exception{
 
         String myUrl = "";
         String param = "@";/* @ to seperate point from paramters*/
         int id;
         
-        ResultSet rs = RequetteSelectionV(debut, NbVille);
-        id =id = paramid;
-         Ville_t v ;
-                 
-        while (rs.next() && !rs.isLast()) {
-
-            v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0); 
-           
+        try (ResultSet rs = RequetteSelectionV(debut, NbVille)) {
+            id = paramid;
+            Ville_t v ;
+            
+            while (rs.next() && !rs.isLast()) {
+                
+                v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
+                
                 myUrl = myUrl + v.lon + "," + v.lat + ";";
                 param += String.valueOf(id) + ";";
-            
-            id++;
-        }
-        v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
-        myUrl = myUrl + v.lon + "," + v.lat;
-        param += String.valueOf(id);
                 
-        rs.close();
+                id++;
+            }
+            
+            v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
+            myUrl = myUrl + v.lon + "," + v.lat;
+            param += String.valueOf(id);
+        }
+        catch(Exception ex){
+            throw  new Exception("Erreur in Prepare query for osrm ", ex);
+        }
         
         /* all are source and destination param = "" */
         if(paramid == -1){
@@ -419,7 +416,7 @@ public class BaseDeDonnee {
         Iterator k;
         String NomVille = null;
         String lon ,lat;  
-        Document document = null;
+        Document document;
         Element racine; 
        
         
@@ -436,7 +433,7 @@ public class BaseDeDonnee {
             //On initialise l'élément racine avec l'élément racine du document.
             if (document !=null){
                 racine = document.getRootElement();
-                Element node = racine.getChild("node");
+                Element node ;
 
                 //Parcourir le fichier xml et enregistrement dans un fichier.
                 ListeNode = racine.getChildren("node");
@@ -480,7 +477,7 @@ public class BaseDeDonnee {
  
  
  
-    /* Exit File gpx */
+/* Exit File gpx */
 /**
  * 
  * @param file

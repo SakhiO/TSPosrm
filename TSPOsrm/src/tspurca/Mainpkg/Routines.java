@@ -53,11 +53,12 @@ public class Routines {
         } 
         ExitFile.createNewFile();
        
+        this.ac.BD.connectBD();
         
         /* Extract cities from osm to tmp file Then Load to DB */
         this.ac.BD.ParcoursXMLinsertF(fileosm, ExitFile);
         this.ac.BD.RequetteInsertV(filedata);
-        
+        this.ac.BD.closeBD();
         
         /* Clean Resources */
         
@@ -100,10 +101,6 @@ public class Routines {
                 
             }         
         }
-        
-       
-        
-        
         //System.out.println("Produced Jobs To Fill GENERAL UPPER MATRIX done");
         
         /* Clean Resources */
@@ -198,16 +195,18 @@ public class Routines {
          */
         int tailleRequete = this.ac.config.getTailleReq();
         int tailleReqS2 = tailleRequete / 2;
-        int startS = n * tailleReqS2;
-        int startD = m * tailleReqS2;
+        
+       
         ParsserJson Pars = new ParsserJson(this.ac.config);
         
         /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
         /* get Sub table cities*/
+        int startS = n * tailleReqS2;
+        int startD;
         for (int i = 0; i < 2; i++) {
             
             String querySrc = this.ac.BD.RequetteOSRMBD(startS, tailleReqS2, 0);
-            
+            startD =m * tailleReqS2;
             for (int j = 0; j < 2; j++) {
                 String queryDest = this.ac.BD.RequetteOSRMBD(startD, tailleReqS2, tailleReqS2);
                 
@@ -218,7 +217,7 @@ public class Routines {
                     /* pars responce to Exitfile */
                     Pars.TableauDistanceOSRMRepU(startS, startD, ExitFile);
                     /* insert to Table distance*/
-                    this.ac.BD.RequetteInsertDistt(filedata);
+                    
                 }
                         
                 startD += tailleReqS2; 
@@ -226,7 +225,7 @@ public class Routines {
             startS +=tailleReqS2;
         }
         
-        
+        this.ac.BD.RequetteInsertDistt(filedata);
         //this.tjBD.addTime(this.ac.BD.tj);
         this.tjPars.addTime(Pars.tj);
         

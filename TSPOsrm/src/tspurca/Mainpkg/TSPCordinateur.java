@@ -31,39 +31,40 @@ public class TSPCordinateur {
         TimerJob total = new TimerJob();
         
         /* init base donnee user et mot de passe */
-        String db = "localhost:3306/maindb";
+        String db = "192.168.1.11:3306/maindb";
         String user = "osm";
         String pwd = "Info0606";
-        String fileosm = "./data/NodesChampagnef.osm";
+        String fileosm = "./data/Nodes_Alsace_Champagne_Lorraine.osm";
         int idC = 2;
         int portS = 59000;
         Commande cmd = new Commande();
         BaseDeDonnee BD = new BaseDeDonnee(db,user,pwd);
         InetSocketAddress socketS = new InetSocketAddress("localhost",portS);
+        Job jb;
         
         try {
             ac = new Access(BD.dburl, idC, 1024, socketS);
-            coordinateur = new Server(ac, idC, 2);
+            coordinateur = new Server(ac, idC, 3);
         
             
             total.start();
             
             coordinateur.start();
-
-            Job jb = new Job(cmd.getCommandeInitdistance(), "coordinateur", ac);
+            
+//            Job jb = new Job(cmd.getCommandeInitVille(fileosm), "coordinateur", ac);
+//            jb.execute();
+            
+            jb = new Job(cmd.getCommandeInitdistance(), "coordinateur", ac);
             jb.execute();
             
              while(!ac.isQueueEmpty() || coordinateur.getNbrJobs() > 0){  
                 sleep(5000);
             }        
-             
-            total.stop();
-            
+    
             coordinateur.dostop();
-            
-            //System.out.println(coordinateur.TimeDB.toString()+"\n"+coordinateur.TimePars.toString());
+            total.stop();
             System.out.println(total.toString());
-
+           
         } catch (Exception ex) {
             Logger.getLogger(TSPCordinateur.class.getName()).log(Level.SEVERE, null, ex);
         }    

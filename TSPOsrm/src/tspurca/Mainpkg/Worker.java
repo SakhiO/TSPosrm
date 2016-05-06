@@ -76,7 +76,8 @@ public class Worker extends Thread{
                     packet = new DatagramPacket(this.sendBuf, this.sendBuf.length,this.ac.socketS);
                     this.socketW.send(packet);
                 }    
-            }
+                
+            }/* End of while*/
             
             this.ac.BD.closeBD();
         } catch (Exception ex) {

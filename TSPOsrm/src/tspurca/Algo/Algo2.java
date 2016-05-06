@@ -16,10 +16,24 @@ import tspurca.Osmpkg.*;
  * @author sunshine(OldSmile)
  */
 public class Algo2 {
-
+    
+    public int id;
+    public String nameTrack;
+    
     public Algo2() {
+         
     }
-     /* Algo ode alphabitique*/
+     
+    /**
+     * Algo alphabitique Oder using mysql query 
+     * to get order by name save us a lot of time
+     * @param BD
+     * @param fileE
+     * @param debut
+     * @param NbVille
+     * @throws IOException
+     * @throws SQLException 
+     */
     public void CAlphabetTrack(BaseDeDonnee BD, String fileE, int debut, int NbVille) throws IOException, SQLException{
         
         String format = " ORDER BY NomVille";

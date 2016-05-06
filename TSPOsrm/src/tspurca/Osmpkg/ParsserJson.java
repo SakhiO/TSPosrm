@@ -28,6 +28,7 @@ import tspurca.Tools.TimerJob;
  * @author sunshine
  */
 public class ParsserJson {
+    
     public String urlosrm;
     public int tailleReq;
     public int NbVille;
