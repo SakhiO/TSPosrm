@@ -13,7 +13,7 @@ import tspurca.Osmpkg.*;
 
 /**
  *
- * @author smile
+ * @author sunshine(OldSmile)
  */
 public class Algo2 {
 
