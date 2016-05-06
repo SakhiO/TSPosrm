@@ -216,7 +216,6 @@ public class Routines {
                     Pars.EnvoieRequette(queryOSRM);
                     /* pars responce to Exitfile */
                     Pars.TableauDistanceOSRMRepU(startS, startD, ExitFile);
-                    /* insert to Table distance*/
                     
                 }
                         
@@ -224,7 +223,7 @@ public class Routines {
             }   
             startS +=tailleReqS2;
         }
-        
+        /* insert to Table distance*/
         this.ac.BD.RequetteInsertDistt(filedata);
         //this.tjBD.addTime(this.ac.BD.tj);
         this.tjPars.addTime(Pars.tj);
