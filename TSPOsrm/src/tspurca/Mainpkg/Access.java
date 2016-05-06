@@ -52,11 +52,11 @@ public class Access {
     }
    
     
-    public void addtoQueue(Object o) {
+    synchronized public void addtoQueue(Object o) {
         this.queue.add(o);
     }
     
-    public Object getfromQueue() throws InterruptedException {
+    synchronized public Object getfromQueue() throws InterruptedException {
         return this.queue.take();
     }
     

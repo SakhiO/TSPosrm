@@ -5,8 +5,12 @@
  */
 
 package tspurca.Mainpkg;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.SQLException;
 import org.jdom2.JDOMException;
 import tspurca.Osmpkg.ParsserJson;
@@ -106,12 +110,6 @@ public class Routines {
         /* Clean Resources */
     
     }
-    
-    
-    public void jobVille(String OsmFile){
-        
-    
-    }
 
     
 /**
@@ -124,7 +122,7 @@ public class Routines {
  */
     public void jobDiagonal(int Debut, String nameThr) throws IOException, SQLException, Exception{
           
-        String filedata = "./tmp/"+nameThr+Debut+"D.txt";
+        String filedata = "./tmp/"+nameThr+"_"+Debut+"D.txt";
         
         /* Create tmp file for the Thread */
         
@@ -135,37 +133,47 @@ public class Routines {
         ExitFile.createNewFile();
         
         
-        
-        /* init default configuration */
-        /* Nombre de ville total pour l'envoi de la requête */
-        int tailleRequete = this.ac.config.getTailleReq();
-        int start = Debut * tailleRequete;
-        ParsserJson Pars = new ParsserJson(this.ac.config);
-        
-        /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
-        String queryOSRM = this.ac.BD.RequetteOSRMBD(start, tailleRequete, -1);
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(ExitFile), "utf-8"))) {
+            /* init default configuration */
+            /* Nombre de ville total pour l'envoi de la requête */
+            int tailleRequete = this.ac.config.getTailleReq();
+            int start = Debut * tailleRequete;
+            ParsserJson Pars = new ParsserJson(this.ac.config);
+
+            /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
+            String queryOSRM = this.ac.BD.RequetteOSRMBD(start, tailleRequete, -1);
+
+            if ((!queryOSRM.equals(""))) {
+
+               /* send query to osrm */
+               Pars.EnvoieRequette(queryOSRM);
+               //System.out.println("osrm :"+queryOSRM);
+               /* pars responce to Exitfile */
+               Pars.TableauDistanceOSRMRepD(start, writer);
+               
+               //System.out.println();
+            }
+            else
+                throw new Exception("Erreur Query result from DB is Empty");
             
-        if ((!queryOSRM.equals(""))) {
+            writer.flush();
+            writer.close(); 
             
-           /* send query to osrm */
-           Pars.EnvoieRequette(queryOSRM);
-           /* pars responce to Exitfile */
-           Pars.TableauDistanceOSRMRepD(start, ExitFile);
-           /* insert to Table distance*/
-           this.ac.BD.RequetteInsertDistt(filedata);
+            /* insert to Table distance*/
+            this.ac.BD.RequetteInsertDistt(filedata);
+            //this.tjBD.addTime(this.ac.BD.tj);
+            this.tjPars.addTime(Pars.tj);
+            
         }
-        else
-            throw new Exception("Erreur Query result from DB is Empty");
-        
-        //this.tjBD.addTime(this.ac.BD.tj);
-        this.tjPars.addTime(Pars.tj);
-        
-        /* Clean Resources */ 
-        
-        ExitFile.delete();
-        
+        catch (Exception ex) {
+            throw new Exception("Erreur TableauDistanceOSRMRepD", ex);    
+        }
+        finally{
+            /* Clean Resources */ 
+            ExitFile.delete();
+        }
     }
-    
     
 
 /**
@@ -177,7 +185,7 @@ public class Routines {
  * @throws Exception 
  */    
     public void jobUpper(int n, int m, String nameThr) throws IOException, Exception{
-        String filedata = "./tmp/"+nameThr+n+m+"U.txt";
+        String filedata = "./tmp/"+nameThr+"_"+n+"_"+m+"U.txt";
         
         /* Create tmp file for the Thread */
         
@@ -186,7 +194,6 @@ public class Routines {
             ExitFile.delete();
         } 
         ExitFile.createNewFile();
-        
         /**
          * init default configuration
          * tailleRequete : 
@@ -196,41 +203,50 @@ public class Routines {
         int tailleRequete = this.ac.config.getTailleReq();
         int tailleReqS2 = tailleRequete / 2;
         
-       
+        
         ParsserJson Pars = new ParsserJson(this.ac.config);
-        
-        /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
-        /* get Sub table cities*/
-        int startS = n * tailleReqS2;
-        int startD;
-        for (int i = 0; i < 2; i++) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(ExitFile), "utf-8"))) {
+            /* Prepare the query for Osrm case Diagonal param== -1 for all cities*/
+            /* get Sub table cities*/
+
+            int startS = n * tailleRequete;
+            int startD;
+            for (int i = 0; i < 2; i++) {
+                String querySrc = this.ac.BD.RequetteOSRMBD(startS, tailleReqS2, 0);
+                startD =m * tailleRequete;
+                for (int j = 0; j < 2; j++) {
+                    String queryDest = this.ac.BD.RequetteOSRMBD(startD, tailleReqS2, tailleReqS2);
+                    if ((!querySrc.equals(""))&&(!queryDest.equals(""))) {
+
+                        ExitFile.createNewFile();
+
+                        String queryOSRM = Pars.assemble2Query(querySrc, queryDest);
+                        /* send query to osrm */
+                        Pars.EnvoieRequette(queryOSRM);
+                        /* pars responce to Exitfile */
+                        Pars.TableauDistanceOSRMRepU(startS, startD, writer);
+                    }
+                    startD += tailleReqS2; 
+                }   
+                startS +=tailleReqS2;
+            }
             
-            String querySrc = this.ac.BD.RequetteOSRMBD(startS, tailleReqS2, 0);
-            startD =m * tailleReqS2;
-            for (int j = 0; j < 2; j++) {
-                String queryDest = this.ac.BD.RequetteOSRMBD(startD, tailleReqS2, tailleReqS2);
-                
-                if (!queryDest.equals("")) {
-                    String queryOSRM = Pars.assemble2Query(querySrc, queryDest);
-                    /* send query to osrm */
-                    Pars.EnvoieRequette(queryOSRM);
-                    /* pars responce to Exitfile */
-                    Pars.TableauDistanceOSRMRepU(startS, startD, ExitFile);
-                    
-                }
-                        
-                startD += tailleReqS2; 
-            }   
-            startS +=tailleReqS2;
+            writer.flush();
+            writer.close(); 
+
+            /* insert to Table distance*/
+            this.ac.BD.RequetteInsertDistt(filedata);
+            //this.tjBD.addTime(this.ac.BD.tj);
+            this.tjPars.addTime(Pars.tj);
         }
-        /* insert to Table distance*/
-        this.ac.BD.RequetteInsertDistt(filedata);
-        //this.tjBD.addTime(this.ac.BD.tj);
-        this.tjPars.addTime(Pars.tj);
-        
-        /* Clean Resources */ 
-        
-        ExitFile.delete();
+        catch (Exception ex) {
+            throw new Exception("Erreur TableauDistanceOSRMRepU", ex);    
+        }
+        finally{
+            /* Clean Resources */ 
+            ExitFile.delete();
+        }
 
     }
 

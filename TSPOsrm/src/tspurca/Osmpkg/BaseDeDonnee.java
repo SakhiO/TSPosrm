@@ -336,7 +336,7 @@ public class BaseDeDonnee {
             id = paramid;
             Ville_t v ;
             
-            while (rs.next() && !rs.isLast()) {
+            while ((!rs.isLast() )&& (rs.next())) {
                 
                 v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
                 
@@ -345,9 +345,17 @@ public class BaseDeDonnee {
                 
                 id++;
             }
-            
+            /* last */
             v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
-            myUrl = myUrl + v.lon + "," + v.lat;
+                        /** 
+             *we will encounter this case only 
+             * in dyagonal when we have 1 city 
+             */
+            if(paramid == id)
+                myUrl = myUrl + v.lon + "," + v.lat + ";" + v.lon + "," + v.lat;
+            else
+                myUrl = myUrl + v.lon + "," + v.lat;
+            
             param += String.valueOf(id);
         }
         catch(Exception ex){

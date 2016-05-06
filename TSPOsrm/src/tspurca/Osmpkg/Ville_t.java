@@ -23,7 +23,7 @@ public class Ville_t {
         this.NomVille = NomVille;   
         
         this.lon = s.substring(0,s.indexOf(' ') - 1); 
-        
+        /* to change inverse for V2 when you load new data */
         this.lat = s.substring(s.indexOf(' ') + 1); 
         
         this.dist = dist;

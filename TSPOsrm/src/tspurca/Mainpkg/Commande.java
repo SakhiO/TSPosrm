@@ -146,7 +146,7 @@ public class Commande {
      * @return 
      */
     public String getRequestcmdKO(String cmd){
-        return "KO@"+cmd;
+        return "KO@"+cmd.replaceAll(",[O|F]$", ",F");
     }
     
             /** Response */
@@ -171,7 +171,7 @@ public class Commande {
      * @return 
      */
     public String getResponseJob(String cmd){
-        return "OK@"+cmd;
+        return "OK@"+cmd.replaceAll(",[O|F]$", ",O");
     }
     
     

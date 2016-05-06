@@ -92,17 +92,16 @@ public String assemble2Query(String src, String dest){
 /**
  * 
  * @param debut
- * @param ExitFile
+ * @param writer
  * @throws Exception 
  */
-public void TableauDistanceOSRMRepD(int debut, File ExitFile) throws  Exception{
+public void TableauDistanceOSRMRepD(int debut, Writer writer) throws  Exception{
     
     
     int indep,inda;
     long id=0;
     
-    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(ExitFile), "utf-8"))) {
+    
         
          JSONObject jsonObject = new JSONObject(this.result);
          JSONArray distance = jsonObject.getJSONArray("durations");
@@ -112,7 +111,7 @@ public void TableauDistanceOSRMRepD(int debut, File ExitFile) throws  Exception{
             /* get table duration src(l) to destinations */
             JSONArray attribut = distance.getJSONArray(src);
             
-            for (int dest = src+1; dest< attribut.length(); dest++){
+            for (int dest = src; dest< attribut.length(); dest++){
                 
                 //récupération des chiffre du tableau
                 long dis = TimeUnit.SECONDS.toMinutes(attribut.getInt(dest));
@@ -126,25 +125,15 @@ public void TableauDistanceOSRMRepD(int debut, File ExitFile) throws  Exception{
             }
 
         }
-        
-        writer.flush();
-        writer.close(); 
-    }
-    catch (Exception ex) {
-        throw new Exception("Erreur TableauDistanceOSRMRepD", ex);    
-    }
 
  }
 
-public void TableauDistanceOSRMRepU(int debutS,int debutD, File ExitFile) throws JSONException, Exception{
+public void TableauDistanceOSRMRepU(int debutS,int debutD, Writer writer) throws JSONException, IOException{
     
     
     int indep,inda;
     long id=0;
-    
-    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(ExitFile), "utf-8"))) {
-        
+
          JSONObject jsonObject = new JSONObject(this.result);
          JSONArray distance = jsonObject.getJSONArray("durations");
          
@@ -167,13 +156,6 @@ public void TableauDistanceOSRMRepU(int debutS,int debutD, File ExitFile) throws
             }
 
         }
-        
-        writer.flush();
-        writer.close(); 
-    }
-    catch (Exception ex) {
-        throw new Exception("Erreur TableauDistanceOSRMRepD", ex);    
-    } 
  }
     
 }

@@ -90,7 +90,7 @@ public class Client extends Thread {
                                 String[] tmp = response.split(",");
                                 
                                 if(tmp[0].equals("sleep")){
-                                    wait(Long.valueOf(tmp[1]));
+                                    sleep(Long.valueOf(tmp[1]));
                                 }
                                 else{
                                     this.dostop();

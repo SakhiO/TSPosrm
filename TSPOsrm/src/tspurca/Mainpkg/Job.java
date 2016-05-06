@@ -49,12 +49,12 @@ public class Job {
                                  System.out.println("job : ville ");
                                  break;
                            case 1:
-                                 System.out.println("job : Fill Diagonal n :"+this.cmd.n+"- START "+this.nameThr);
+                                 //System.out.println("job : Fill Diagonal n :"+this.cmd.n+"- START "+this.nameThr);
                                  this.routine.jobDiagonal(this.cmd.n, this.nameThr);
                                  System.out.println("job : Fill Diagonal n :"+this.cmd.n+"- END "+this.nameThr);
                                  break;
                            case 2:
-                                 System.out.println("job : Fill UPPER INDEXs(n m):("+this.cmd.n+","+this.cmd.m+")- START "+this.nameThr);
+                                 //System.out.println("job : Fill UPPER INDEXs(n m):("+this.cmd.n+","+this.cmd.m+")- START "+this.nameThr);
                                  this.routine.jobUpper(this.cmd.n, this.cmd.m, this.nameThr);
                                  System.out.println("job : Fill UPPER INDEXs(n m):("+this.cmd.n+","+this.cmd.m+")- END "+this.nameThr);
                                  break;
@@ -69,7 +69,5 @@ public class Job {
     public Routines getRoutine() {
         return this.routine;
     }
-    
-    
 
 }/* End of Class */

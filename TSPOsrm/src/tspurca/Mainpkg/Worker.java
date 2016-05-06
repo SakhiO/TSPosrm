@@ -88,7 +88,7 @@ public class Worker extends Thread{
     public synchronized void dostop(){
         this.fin = true;
         /* changer fin*/
-        this.interrupt();
+        //this.interrupt();
     }
 
     public synchronized boolean isFin() {

@@ -35,7 +35,7 @@ public class TSPCordinateur {
         String user = "osm";
         String pwd = "Info0606";
         String fileosm = "./data/Nodes_Alsace_Champagne_Lorraine.osm";
-        int idC = 2;
+        int idC = 3;
         int portS = 59000;
         Commande cmd = new Commande();
         BaseDeDonnee BD = new BaseDeDonnee(db,user,pwd);
@@ -44,14 +44,14 @@ public class TSPCordinateur {
         
         try {
             ac = new Access(BD.dburl, idC, 1024, socketS);
-            coordinateur = new Server(ac, idC, 3);
+            coordinateur = new Server(ac, idC, 5);
         
             
             total.start();
             
             coordinateur.start();
             
-//            Job jb = new Job(cmd.getCommandeInitVille(fileosm), "coordinateur", ac);
+//            jb = new Job(cmd.getCommandeInitVille(fileosm), "coordinateur", ac);
 //            jb.execute();
             
             jb = new Job(cmd.getCommandeInitdistance(), "coordinateur", ac);
