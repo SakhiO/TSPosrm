@@ -127,7 +127,7 @@ public class Routines {
  */
     public void jobDiagonal(int Debut, String nameThr) throws IOException, SQLException, Exception{
           
-        String filedata = "./tmp/"+nameThr+"D.txt";
+        String filedata = "./tmp/"+nameThr+Debut+"D.txt";
         
         /* Create tmp file for the Thread */
         
@@ -155,7 +155,7 @@ public class Routines {
            /* pars responce to Exitfile */
            Pars.TableauDistanceOSRMRepD(start, ExitFile);
            /* insert to Table distance*/
-           //this.ac.BD.RequetteInsertDistt(filedata);
+           this.ac.BD.RequetteInsertDistt(filedata);
         }
         else
             throw new Exception("Erreur Query result from DB is Empty");
@@ -180,7 +180,7 @@ public class Routines {
  * @throws Exception 
  */    
     public void jobUpper(int n, int m, String nameThr) throws IOException, Exception{
-        String filedata = "./tmp/"+nameThr+"U.txt";
+        String filedata = "./tmp/"+nameThr+n+m+"U.txt";
         
         /* Create tmp file for the Thread */
         
@@ -189,8 +189,6 @@ public class Routines {
             ExitFile.delete();
         } 
         ExitFile.createNewFile();
-        
-       
         
         /**
          * init default configuration
@@ -220,7 +218,7 @@ public class Routines {
                     /* pars responce to Exitfile */
                     Pars.TableauDistanceOSRMRepU(startS, startD, ExitFile);
                     /* insert to Table distance*/
-                    //this.ac.BD.RequetteInsertDistt(filedata);
+                    this.ac.BD.RequetteInsertDistt(filedata);
                 }
                         
                 startD += tailleReqS2; 
