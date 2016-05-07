@@ -114,7 +114,7 @@ public void TableauDistanceOSRMRepD(int debut, Writer writer) throws  Exception{
             for (int dest = src; dest< attribut.length(); dest++){
                 
                 //récupération des chiffre du tableau
-                long dis = TimeUnit.SECONDS.toMinutes(attribut.getInt(dest));
+                long dis = attribut.getInt(dest);
 
                 indep =  debut + src;
                 inda =  debut + dest;

@@ -53,25 +53,36 @@ public class Worker extends Thread{
                     this.cmd = (String)this.ac.getfromQueue();
                     Job  jb = new Job(this.cmd,this.getName(), this.ac);
                     jb.execute();
+                    this.cmd = null;
                     this.WBD.addTime(this.ac.BD.tj);
                     this.WPars.addTime(jb.getRoutine().tjPars);
                     log = cmd.getReporttLog(this.WBD,this.WPars);
                     
                 } catch (Exception e) {
-                    System.err.println("Erreur in Execute Job at Thread"+this.getName());
-                    try {
-                        this.ac.addtoQueue(this.cmd);
-                    } catch (Exception ee) {
-                        System.err.println("Erreur in job put it back to queue final");
-                        System.err.println(ee.toString());
-                        log = cmd.getRequestcmdKO(this.cmd);
+                    if(!this.isInterrupted()){
+                        System.err.println("Erreur in Execute Job at Thread"+this.getName());
+                        try {
+                            if(this.cmd.endsWith(",O"))
+                                this.ac.addtoQueue(this.cmd);
+                            else
+                                log = cmd.getRequestcmdKO(this.cmd);
+                        } catch (Exception ee) {
+                            System.err.println("Erreur in job put it back to queue final");
+                            System.err.println(ee.toString());
+                            log = cmd.getRequestcmdKO(this.cmd);
+                        }
+                        System.err.println("Putting Back Commande to queue cmd :"+this.cmd);
+                        //System.err.println(e.toString());
                     }
-                    System.err.println("Putting Back Commande to queue cmd :"+this.cmd);
-                    //System.err.println(e.toString());
-                    e.printStackTrace();
-                    
+                    else{
+                        if(this.cmd != null){
+                            /* commande not done send back*/
+                            log = cmd.getRequestcmdKO(this.cmd);
+                        }
+                    }
                 }
                 finally{
+                    
                     this.sendBuf = log.getBytes();
                     packet = new DatagramPacket(this.sendBuf, this.sendBuf.length,this.ac.socketS);
                     this.socketW.send(packet);
@@ -86,9 +97,10 @@ public class Worker extends Thread{
     }
 
     public synchronized void dostop(){
+    
         this.fin = true;
-        /* changer fin*/
-        //this.interrupt();
+        /* interept fin*/
+        this.interrupt();
     }
 
     public synchronized boolean isFin() {

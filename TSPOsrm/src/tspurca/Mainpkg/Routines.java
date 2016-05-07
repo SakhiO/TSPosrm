@@ -62,10 +62,9 @@ public class Routines {
         /* Extract cities from osm to tmp file Then Load to DB */
         this.ac.BD.ParcoursXMLinsertF(fileosm, ExitFile);
         this.ac.BD.RequetteInsertV(filedata);
-        this.ac.BD.closeBD();
-        
+
         /* Clean Resources */
-        
+        this.ac.BD.closeBD();
         /* delete tmp file*/
         ExitFile.delete();
         
@@ -105,8 +104,7 @@ public class Routines {
                 
             }         
         }
-        //System.out.println("Produced Jobs To Fill GENERAL UPPER MATRIX done");
-        
+       
         /* Clean Resources */
     
     }
@@ -147,12 +145,10 @@ public class Routines {
             if ((!queryOSRM.equals(""))) {
 
                /* send query to osrm */
-               Pars.EnvoieRequette(queryOSRM);
-               //System.out.println("osrm :"+queryOSRM);
+               Pars.EnvoieRequette(queryOSRM);               
                /* pars responce to Exitfile */
                Pars.TableauDistanceOSRMRepD(start, writer);
-               
-               //System.out.println();
+
             }
             else
                 throw new Exception("Erreur Query result from DB is Empty");
@@ -162,7 +158,7 @@ public class Routines {
             
             /* insert to Table distance*/
             this.ac.BD.RequetteInsertDistt(filedata);
-            //this.tjBD.addTime(this.ac.BD.tj);
+            
             this.tjPars.addTime(Pars.tj);
             
         }
@@ -173,7 +169,7 @@ public class Routines {
             /* Clean Resources */ 
             ExitFile.delete();
         }
-    }
+    }/* EndJob on Diagonal Matrix */
     
 
 /**
@@ -202,7 +198,7 @@ public class Routines {
          */
         int tailleRequete = this.ac.config.getTailleReq();
         int tailleReqS2 = tailleRequete / 2;
-        
+        int NbVille = this.ac.config.getNbVille();
         
         ParsserJson Pars = new ParsserJson(this.ac.config);
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
@@ -215,7 +211,9 @@ public class Routines {
             for (int i = 0; i < 2; i++) {
                 String querySrc = this.ac.BD.RequetteOSRMBD(startS, tailleReqS2, 0);
                 startD =m * tailleRequete;
-                for (int j = 0; j < 2; j++) {
+                
+                for (int j = 0; (j < 2) && (startD < NbVille); j++) {     
+                    
                     String queryDest = this.ac.BD.RequetteOSRMBD(startD, tailleReqS2, tailleReqS2);
                     if ((!querySrc.equals(""))&&(!queryDest.equals(""))) {
 
@@ -228,16 +226,16 @@ public class Routines {
                         Pars.TableauDistanceOSRMRepU(startS, startD, writer);
                     }
                     startD += tailleReqS2; 
-                }   
+                }/* column sub table*/   
                 startS +=tailleReqS2;
-            }
+            }/* row sub table*/
             
             writer.flush();
             writer.close(); 
 
             /* insert to Table distance*/
             this.ac.BD.RequetteInsertDistt(filedata);
-            //this.tjBD.addTime(this.ac.BD.tj);
+            
             this.tjPars.addTime(Pars.tj);
         }
         catch (Exception ex) {
@@ -248,6 +246,6 @@ public class Routines {
             ExitFile.delete();
         }
 
-    }
+    }/* EndJob on UpperMatrix */
 
 }

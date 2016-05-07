@@ -65,8 +65,8 @@ public class Server extends Thread {
                 Request req = new Request(packet);
                 //System.out.println(" esponse :" + new String(packet.getData()).replaceAll("\0", ""));
                 responce="";
-                /* send request end to handlers*/
-                if(isFin())
+                /* send request end to handlers and if request is log handel it*/
+                if((isFin())&& (!req.isInfo()))
                     req.End();
                 
                 switch(req.getType()){
@@ -105,6 +105,7 @@ public class Server extends Thread {
                     
                     case "KO":
                         System.err.println("Erreur job failed"+req.getSocketCInfo());
+                        this.nbrJobs++;
                         this.ac.addtoQueue(req.getRequest());
                         break;
                         
@@ -188,7 +189,11 @@ public class Server extends Thread {
         public String getRequest() {
             return this.request;
         }
-    
+        
+        /**/
+        public boolean isInfo(){
+            return (this.type.equals("LOG") || this.type.equals("KO"));
+        } 
         /**
          * get datagrampacket as responce to clien request from cmd 
          * @param cmd commande to put in packet client
@@ -205,9 +210,6 @@ public class Server extends Thread {
         public String getSocketCInfo() {
             return socketC.toString();
         }
-    
-        
-    
    }
 
     

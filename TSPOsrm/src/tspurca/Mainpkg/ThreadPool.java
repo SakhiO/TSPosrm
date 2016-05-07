@@ -63,9 +63,9 @@ public final class ThreadPool {
     }
     
     public synchronized void stop(){
-        this.fin = true;
         /* stop threads */
         for(Worker wk: vecThr)wk.dostop();
+        this.fin = true;
     }
     
     public String workersTimeSum(){

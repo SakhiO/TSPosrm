@@ -63,7 +63,7 @@ public class Client extends Thread {
                   
                 this.pool = new ThreadPool(res.getResponse(),1024, this.socketS);
                 
-                while((!isFin()) || (this.nbrJobs > 0)){
+                while(!isFin()){
                     while (!this.pool.isQueueEmpty()) {}
                     
                     try {

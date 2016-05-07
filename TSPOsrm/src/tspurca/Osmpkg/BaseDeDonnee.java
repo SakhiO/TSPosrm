@@ -331,33 +331,41 @@ public class BaseDeDonnee {
         String myUrl = "";
         String param = "@";/* @ to seperate point from paramters*/
         int id;
-        
+        Ville_t v;   
+        id = paramid;
+            
         try (ResultSet rs = RequetteSelectionV(debut, NbVille)) {
-            id = paramid;
-            Ville_t v ;
-            
-            while ((!rs.isLast() )&& (rs.next())) {
-                
+
+            rs.next();
+            if (rs.isLast()){
+                /** 
+                 *we will encounter this case only 
+                 * in dyagonal when we have 1 city at the end
+                 * or upper at each last sub table if destination equal 1 city
+                 */
                 v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
-                
-                myUrl = myUrl + v.lon + "," + v.lat + ";";
-                param += String.valueOf(id) + ";";
-                
-                id++;
-            }
-            /* last */
-            v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
-                        /** 
-             *we will encounter this case only 
-             * in dyagonal when we have 1 city 
-             */
-            if(paramid == id)
-                myUrl = myUrl + v.lon + "," + v.lat + ";" + v.lon + "," + v.lat;
-            else
+                if(paramid == -1)
+                    myUrl = myUrl + v.lon + "," + v.lat + ";" + v.lon + "," + v.lat;  
+                else /* upper dest only one city*/
+                    myUrl = myUrl + v.lon + "," + v.lat;
+                param += String.valueOf(id);
+            }       
+            else {
+                while (!rs.isLast()) {
+                    v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
+                    myUrl = myUrl + v.lon + "," + v.lat + ";";
+                    param += String.valueOf(id) + ";";
+                    rs.next();
+                    id++;
+                }
+                /* last */
+                v = new  Ville_t(rs.getString("NomVille"), rs.getString("AsText(LatLong)"),0);
                 myUrl = myUrl + v.lon + "," + v.lat;
-            
-            param += String.valueOf(id);
-        }
+
+                param += String.valueOf(id);
+            }/*End if more then 1 */
+         
+        }/*End of try */
         catch(Exception ex){
             throw  new Exception("Erreur in Prepare query for osrm ", ex);
         }

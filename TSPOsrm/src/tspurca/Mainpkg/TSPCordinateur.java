@@ -31,7 +31,7 @@ public class TSPCordinateur {
         TimerJob total = new TimerJob();
         
         /* init base donnee user et mot de passe */
-        String db = "192.168.1.11:3306/maindb";
+        String db = "192.168.1.11:3306/dbmap";
         String user = "osm";
         String pwd = "Info0606";
         String fileosm = "./data/Nodes_Alsace_Champagne_Lorraine.osm";
@@ -50,13 +50,13 @@ public class TSPCordinateur {
             total.start();
             
             coordinateur.start();
-            
+           
 //            jb = new Job(cmd.getCommandeInitVille(fileosm), "coordinateur", ac);
 //            jb.execute();
             
             jb = new Job(cmd.getCommandeInitdistance(), "coordinateur", ac);
             jb.execute();
-            
+           
              while(!ac.isQueueEmpty() || coordinateur.getNbrJobs() > 0){  
                 sleep(5000);
             }        
